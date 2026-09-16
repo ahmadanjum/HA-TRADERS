@@ -1,0 +1,755 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Management - HA TRADERS</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+           HA<span>TRADERS</span>
+        </div>
+
+        <nav>
+
+            <a href="index.html">
+                🏠 Dashboard
+            </a>
+
+            <a href="product.html">
+                📦 Products
+            </a>
+
+            <a href="customer.html" class="active">
+                👥 Customers
+            </a>
+
+            <a href="billing.html">
+                🧾 Billing
+            </a>
+
+            <a href="sales.html">
+                📊 Sales
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>Customer Management</h1>
+
+                <p>
+                    Manage your store customers
+                </p>
+
+            </div>
+
+            <button
+                class="add-btn"
+                onclick="openCustomerForm()">
+
+                + Add Customer
+
+            </button>
+
+        </header>
+
+
+        <!-- Statistics -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+
+                <h3>
+                    Total Customers
+                </h3>
+
+                <p id="totalCustomers">
+                    0
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Active Customers
+                </h3>
+
+                <p id="activeCustomers">
+                    0
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Total Purchases
+                </h3>
+
+                <p id="totalPurchases">
+                    Rs. 0
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>
+                    Customers With Balance
+                </h3>
+
+                <p id="customersBalance">
+                    0
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Customer Table -->
+
+        <section class="table-section">
+
+            <div class="table-header">
+
+                <h2>
+                    Customers
+                </h2>
+
+                <input
+                    type="text"
+                    id="searchCustomer"
+                    placeholder="Search customer..."
+                    onkeyup="displayCustomers()">
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Customer Name
+                            </th>
+
+                            <th>
+                                Phone
+                            </th>
+
+                            <th>
+                                Address
+                            </th>
+
+                            <th>
+                                Purchases
+                            </th>
+
+                            <th>
+                                Balance
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="customerTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Customer Modal -->
+
+    <div
+        class="modal"
+        id="customerModal">
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <h2 id="formTitle">
+                    Add Customer
+                </h2>
+
+                <button
+                    onclick="closeCustomerForm()">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <form id="customerForm">
+
+                <input
+                    type="hidden"
+                    id="customerId">
+
+
+                <label>
+                    Customer Name
+                </label>
+
+                <input
+                    type="text"
+                    id="customerName"
+                    placeholder="Enter customer name"
+                    required>
+
+
+                <label>
+                    Phone Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="customerPhone"
+                    placeholder="03XX-XXXXXXX"
+                    required>
+
+
+                <label>
+                    Address
+                </label>
+
+                <textarea
+                    id="customerAddress"
+                    placeholder="Enter customer address"
+                    rows="3">
+                </textarea>
+
+
+                <label>
+                    Opening Balance
+                </label>
+
+                <input
+                    type="number"
+                    id="customerBalance"
+                    placeholder="0"
+                    min="0"
+                    value="0">
+
+
+                <button
+                    type="submit"
+                    class="save-btn">
+
+                    Save Customer
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+<script>
+
+/* ==============================
+   CUSTOMER DATA
+============================== */
+
+let customers =
+    JSON.parse(
+        localStorage.getItem("storeCustomers")
+    ) || [];
+
+
+/* ==============================
+   ADD / EDIT CUSTOMER
+============================== */
+
+document
+    .getElementById("customerForm")
+    .addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+
+            const id =
+                document
+                    .getElementById("customerId")
+                    .value;
+
+
+            const customer = {
+
+                id: id || Date.now(),
+
+                name:
+                    document
+                        .getElementById("customerName")
+                        .value
+                        .trim(),
+
+                phone:
+                    document
+                        .getElementById("customerPhone")
+                        .value
+                        .trim(),
+
+                address:
+                    document
+                        .getElementById("customerAddress")
+                        .value
+                        .trim(),
+
+                balance:
+                    Number(
+                        document
+                            .getElementById("customerBalance")
+                            .value
+                    ),
+
+                purchases:
+                    id
+                        ? getExistingPurchases(id)
+                        : 0
+
+            };
+
+
+            if (id) {
+
+                customers =
+                    customers.map(
+                        item =>
+                            item.id == id
+                                ? customer
+                                : item
+                    );
+
+            } else {
+
+                customers.push(customer);
+
+            }
+
+
+            localStorage.setItem(
+                "storeCustomers",
+                JSON.stringify(customers)
+            );
+
+
+            closeCustomerForm();
+
+            displayCustomers();
+
+            updateStatistics();
+
+        }
+    );
+
+
+/* ==============================
+   EXISTING PURCHASES
+============================== */
+
+function getExistingPurchases(id) {
+
+    const customer =
+        customers.find(
+            item => item.id == id
+        );
+
+
+    if (customer) {
+
+        return customer.purchases || 0;
+
+    }
+
+
+    return 0;
+
+}
+
+
+/* ==============================
+   DISPLAY CUSTOMERS
+============================== */
+
+function displayCustomers() {
+
+    const table =
+        document.getElementById(
+            "customerTable"
+        );
+
+
+    const search =
+        document
+            .getElementById("searchCustomer")
+            .value
+            .toLowerCase();
+
+
+    table.innerHTML = "";
+
+
+    const filteredCustomers =
+        customers.filter(customer =>
+
+            customer.name
+                .toLowerCase()
+                .includes(search)
+
+            ||
+
+            customer.phone
+                .toLowerCase()
+                .includes(search)
+
+        );
+
+
+    filteredCustomers.forEach(
+        (customer, index) => {
+
+            const row =
+                document.createElement("tr");
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${index + 1}
+                </td>
+
+                <td>
+
+                    <strong>
+                        ${customer.name}
+                    </strong>
+
+                </td>
+
+                <td>
+                    ${customer.phone}
+                </td>
+
+                <td>
+                    ${customer.address || "-"}
+                </td>
+
+                <td>
+                    Rs. ${customer.purchases || 0}
+                </td>
+
+                <td>
+
+                    ${
+                        customer.balance > 0
+
+                        ?
+
+                        `<span class="low-stock">
+                            Rs. ${customer.balance}
+                        </span>`
+
+                        :
+
+                        "Rs. 0"
+
+                    }
+
+                </td>
+
+                <td>
+
+                    <button
+                        class="edit-btn"
+                        onclick="editCustomer(${customer.id})">
+
+                        Edit
+
+                    </button>
+
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteCustomer(${customer.id})">
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        }
+    );
+
+}
+
+
+/* ==============================
+   OPEN FORM
+============================== */
+
+function openCustomerForm() {
+
+    document
+        .getElementById("customerModal")
+        .classList.add("show");
+
+
+    document
+        .getElementById("formTitle")
+        .innerText =
+            "Add Customer";
+
+
+    document
+        .getElementById("customerForm")
+        .reset();
+
+
+    document
+        .getElementById("customerId")
+        .value = "";
+
+
+    document
+        .getElementById("customerBalance")
+        .value = 0;
+
+}
+
+
+/* ==============================
+   CLOSE FORM
+============================== */
+
+function closeCustomerForm() {
+
+    document
+        .getElementById("customerModal")
+        .classList.remove("show");
+
+}
+
+
+/* ==============================
+   EDIT CUSTOMER
+============================== */
+
+function editCustomer(id) {
+
+    const customer =
+        customers.find(
+            item => item.id == id
+        );
+
+
+    if (!customer) return;
+
+
+    document
+        .getElementById("formTitle")
+        .innerText =
+            "Edit Customer";
+
+
+    document
+        .getElementById("customerId")
+        .value =
+            customer.id;
+
+
+    document
+        .getElementById("customerName")
+        .value =
+            customer.name;
+
+
+    document
+        .getElementById("customerPhone")
+        .value =
+            customer.phone;
+
+
+    document
+        .getElementById("customerAddress")
+        .value =
+            customer.address;
+
+
+    document
+        .getElementById("customerBalance")
+        .value =
+            customer.balance;
+
+
+    document
+        .getElementById("customerModal")
+        .classList.add("show");
+
+}
+
+
+/* ==============================
+   DELETE CUSTOMER
+============================== */
+
+function deleteCustomer(id) {
+
+    const confirmDelete =
+        confirm(
+            "Are you sure you want to delete this customer?"
+        );
+
+
+    if (!confirmDelete) return;
+
+
+    customers =
+        customers.filter(
+            item => item.id != id
+        );
+
+
+    localStorage.setItem(
+        "storeCustomers",
+        JSON.stringify(customers)
+    );
+
+
+    displayCustomers();
+
+    updateStatistics();
+
+}
+
+
+/* ==============================
+   STATISTICS
+============================== */
+
+function updateStatistics() {
+
+    document
+        .getElementById("totalCustomers")
+        .innerText =
+            customers.length;
+
+
+    const active =
+        customers.filter(
+            customer =>
+                customer.purchases > 0
+        ).length;
+
+
+    document
+        .getElementById("activeCustomers")
+        .innerText =
+            active;
+
+
+    const purchases =
+        customers.reduce(
+            (total, customer) =>
+                total +
+                Number(customer.purchases || 0),
+
+            0
+        );
+
+
+    document
+        .getElementById("totalPurchases")
+        .innerText =
+            "Rs. " + purchases;
+
+
+    const balance =
+        customers.filter(
+            customer =>
+                Number(customer.balance || 0) > 0
+        ).length;
+
+
+    document
+        .getElementById("customersBalance")
+        .innerText =
+            balance;
+
+}
+
+
+/* ==============================
+   INITIAL LOAD
+============================== */
+
+displayCustomers();
+
+updateStatistics();
+
+</script>
+
+</body>
+
+</html>
+```

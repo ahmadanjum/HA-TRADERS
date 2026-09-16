@@ -1,0 +1,1551 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Billing - HATRADERS</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css">
+
+    <style>
+
+        .billing-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .billing-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .billing-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .product-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .product-row select,
+        .product-row input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .remove-item {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 9px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-item-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .bill-summary {
+            border-top: 1px solid #ddd;
+            margin-top: 25px;
+            padding-top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .summary-total {
+            font-size: 23px;
+            font-weight: bold;
+            border-top: 2px solid #222;
+            padding-top: 15px;
+        }
+
+        .cash-box {
+            margin-top: 20px;
+        }
+
+        .cash-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .cash-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .change {
+            margin-top: 12px;
+            padding: 12px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .invoice-btn {
+            width: 100%;
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 14px;
+            margin-top: 20px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .invoice-btn:hover {
+            background: #16a34a;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #777;
+            padding: 25px;
+        }
+
+        @media (max-width: 900px) {
+
+            .billing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-row {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        HA<span>TRADERS</span>
+    </div>
+
+    <nav>
+
+        <a href="index.html">
+            🏠 Dashboard
+        </a>
+
+        <a href="product.html">
+            📦 Products
+        </a>
+
+        <a href="customer.html">
+            👥 Customers
+        </a>
+
+        <a href="billing.html" class="active">
+            🧾 Billing
+        </a>
+
+        <a href="sales.html">
+            📊 Sales
+        </a>
+
+    </nav>
+
+</aside>
+
+
+
+<!-- MAIN -->
+
+<main class="main-content">
+
+    <header class="topbar">
+
+        <div>
+
+            <h1>
+                Billing / POS
+            </h1>
+
+            <p>
+                Create a new sale and invoice
+            </p>
+
+        </div>
+
+    </header>
+
+
+
+    <div class="billing-grid">
+
+
+        <!-- LEFT SIDE -->
+
+        <section class="billing-card">
+
+            <h2>
+                Sale Details
+            </h2>
+
+
+            <!-- CUSTOMER -->
+
+            <div class="form-group">
+
+                <label>
+                    Select Customer
+                </label>
+
+                <select id="customerSelect">
+
+                    <option value="">
+                        Walk-in Customer
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <h2>
+                Products
+            </h2>
+
+
+            <!-- PRODUCTS -->
+
+            <div id="productItems">
+
+            </div>
+
+
+            <button
+                class="add-item-btn"
+                onclick="addProductRow()">
+
+                + Add Product
+
+            </button>
+
+
+        </section>
+
+
+
+        <!-- RIGHT SIDE -->
+
+        <section class="billing-card">
+
+            <h2>
+                Bill Summary
+            </h2>
+
+
+            <div class="bill-summary">
+
+                <div class="summary-row">
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <strong>
+                        Rs. <span id="subtotal">
+                            0
+                        </span>
+                    </strong>
+
+                </div>
+
+
+
+                <!-- DISCOUNT -->
+
+                <div class="form-group">
+
+                    <label>
+                        Discount (Rs.)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="discount"
+                        value="0"
+                        min="0"
+                        oninput="calculateBill()">
+
+                </div>
+
+
+
+                <div class="summary-row">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong class="summary-total">
+
+                        Rs.
+                        <span id="grandTotal">
+                            0
+                        </span>
+
+                    </strong>
+
+                </div>
+
+
+                <!-- CASH -->
+
+                <div class="cash-box">
+
+                    <label>
+                        Cash Received
+                    </label>
+
+                    <input
+                        type="number"
+                        id="cashReceived"
+                        value="0"
+                        min="0"
+                        oninput="calculateChange()">
+
+                </div>
+
+
+                <div class="change">
+
+                    Change:
+                    Rs.
+                    <span id="changeAmount">
+                        0
+                    </span>
+
+                </div>
+
+
+                <button
+                    class="invoice-btn"
+                    onclick="generateInvoice()">
+
+                    🧾 Generate Invoice
+
+                </button>
+
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+</main>
+
+
+
+<script>
+
+/* ===================================
+   LOAD DATA
+=================================== */
+
+let products =
+    JSON.parse(
+        localStorage.getItem("storeProducts")
+    ) || [];
+
+
+let customers =
+    JSON.parse(
+        localStorage.getItem("storeCustomers")
+    ) || [];
+
+
+let saleItems = [];
+
+
+
+/* ===================================
+   CUSTOMER DROPDOWN
+=================================== */
+
+function loadCustomers() {
+
+    const select =
+        document.getElementById(
+            "customerSelect"
+        );
+
+
+    customers.forEach(customer => {
+
+        const option =
+            document.createElement("option");
+
+
+        option.value =
+            customer.id;
+
+
+        option.textContent =
+            customer.name +
+            " - " +
+            customer.phone;
+
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+
+/* ===================================
+   ADD PRODUCT ROW
+=================================== */
+
+function addProductRow() {
+
+    if (products.length === 0) {
+
+        alert(
+            "Please add products first."
+        );
+
+        return;
+
+    }
+
+
+    const container =
+        document.getElementById(
+            "productItems"
+        );
+
+
+    const row =
+        document.createElement("div");
+
+
+    row.className =
+        "product-row";
+
+
+    row.innerHTML = `
+
+        <select
+            class="product-select"
+            onchange="updateRow(this)">
+
+            <option value="">
+                Select Product
+            </option>
+
+            ${products.map(product => `
+
+                <option
+                    value="${product.id}">
+
+                    ${product.name}
+                    - Rs. ${product.salePrice}
+                    (Stock: ${product.stock})
+
+                </option>
+
+            `).join("")}
+
+        </select>
+
+
+        <input
+            type="number"
+            class="quantity"
+            value="1"
+            min="1"
+            onchange="calculateBill()"
+            placeholder="Qty">
+
+
+        <input
+            type="text"
+            class="price"
+            value="0"
+            readonly>
+
+
+        <input
+            type="text"
+            class="item-total"
+            value="0"
+            readonly>
+
+
+        <button
+            class="remove-item"
+            onclick="removeProductRow(this)">
+
+            ×
+
+        </button>
+
+    `;
+
+
+    container.appendChild(row);
+
+}
+
+
+
+/* ===================================
+   UPDATE PRODUCT ROW
+=================================== */
+
+function updateRow(select) {
+
+    const row =
+        select.parentElement;
+
+
+    const productId =
+        Number(select.value);
+
+
+    const product =
+        products.find(
+            item => item.id == productId
+        );
+
+
+    if (!product) {
+
+        row.querySelector(".price")
+            .value = 0;
+
+        row.querySelector(".item-total")
+            .value = 0;
+
+        calculateBill();
+
+        return;
+
+    }
+
+
+    row.querySelector(".price")
+        .value =
+            product.salePrice;
+
+
+    const quantity =
+        Number(
+            row.querySelector(".quantity")
+                .value
+        );
+
+
+    row.querySelector(".item-total")
+        .value =
+            product.salePrice *
+            quantity;
+
+
+    calculateBill();
+
+}
+
+
+
+/* ===================================
+   REMOVE ROW
+=================================== */
+
+function removeProductRow(button) {
+
+    button
+        .parentElement
+        .remove();
+
+
+    calculateBill();
+
+}
+
+
+
+/* ===================================
+   CALCULATE BILL
+=================================== */
+
+function calculateBill() {
+
+    const rows =
+        document.querySelectorAll(
+            ".product-row"
+        );
+
+
+    let subtotal = 0;
+
+
+    rows.forEach(row => {
+
+        const select =
+            row.querySelector(
+                ".product-select"
+            );
+
+
+        const quantity =
+            Number(
+                row.querySelector(
+                    ".quantity"
+                ).value
+            );
+
+
+        const product =
+            products.find(
+                item =>
+                    item.id ==
+                    Number(select.value)
+            );
+
+
+        if (product) {
+
+            const total =
+                product.salePrice *
+                quantity;
+
+
+            row.querySelector(
+                ".price"
+            ).value =
+                product.salePrice;
+
+
+            row.querySelector(
+                ".item-total"
+            ).value =
+                total;
+
+
+            subtotal += total;
+
+        }
+
+    });
+
+
+    document.getElementById(
+        "subtotal"
+    ).innerText =
+        subtotal;
+
+
+    const discount =
+        Number(
+            document.getElementById(
+                "discount"
+            ).value
+        ) || 0;
+
+
+    let total =
+        subtotal - discount;
+
+
+    if (total < 0) {
+        total = 0;
+    }
+
+
+    document.getElementById(
+        "grandTotal"
+    ).innerText =
+        total;
+
+
+    calculateChange();
+
+}
+
+
+
+/* ===================================
+   CALCULATE CHANGE
+=================================== */
+
+function calculateChange() {
+
+    const total =
+        Number(
+            document.getElementById(
+                "grandTotal"
+            ).innerText
+        );
+
+
+    const cash =
+        Number(
+            document.getElementById(
+                "cashReceived"
+            ).value
+        ) || 0;
+
+
+    const change =
+        cash - total;
+
+
+    document.getElementById(
+        "changeAmount"
+    ).innerText =
+        change > 0
+            ? change
+            : 0;
+
+}
+
+
+
+/* ===================================
+   GENERATE INVOICE
+=================================== */
+
+function generateInvoice() {
+
+    const rows =
+        document.querySelectorAll(
+            ".product-row"
+        );
+
+
+    if (rows.length === 0) {
+
+        alert(
+            "Please add at least one product."
+        );
+
+        return;
+
+    }
+
+
+    let invoiceItems = [];
+
+    let valid = true;
+
+
+    rows.forEach(row => {
+
+        const productId =
+            Number(
+                row.querySelector(
+                    ".product-select"
+                ).value
+            );
+
+
+        const quantity =
+            Number(
+                row.querySelector(
+                    ".quantity"
+                ).value
+            );
+
+
+        if (!productId || quantity <= 0) {
+
+            valid = false;
+
+            return;
+
+        }
+
+
+        const product =
+            products.find(
+                item =>
+                    item.id == productId
+            );
+
+
+        if (!product) {
+
+            valid = false;
+
+            return;
+
+        }
+
+
+        if (quantity > product.stock) {
+
+            alert(
+                product.name +
+                " has only " +
+                product.stock +
+                " items in stock."
+            );
+
+            valid = false;
+
+            return;
+
+        }
+
+
+        invoiceItems.push({
+
+            id:
+                product.id,
+
+            name:
+                product.name,
+
+            quantity:
+                quantity,
+
+            price:
+                product.salePrice,
+
+            total:
+                product.salePrice *
+                quantity
+
+        });
+
+    });
+
+
+    if (!valid) {
+
+        alert(
+            "Please check your products and quantities."
+        );
+
+        return;
+
+    }
+
+
+    const subtotal =
+        Number(
+            document.getElementById(
+                "subtotal"
+            ).innerText
+        );
+
+
+    const discount =
+        Number(
+            document.getElementById(
+                "discount"
+            ).value
+        ) || 0;
+
+
+    const total =
+        Number(
+            document.getElementById(
+                "grandTotal"
+            ).innerText
+        );
+
+
+    const cash =
+        Number(
+            document.getElementById(
+                "cashReceived"
+            ).value
+        ) || 0;
+
+
+    if (cash < total) {
+
+        alert(
+            "Cash received is less than the total amount."
+        );
+
+        return;
+
+    }
+
+
+    /* Generate invoice number */
+
+    const invoiceNumber =
+        "INV-" +
+        Date.now();
+
+
+    /* Date */
+
+    const date =
+        new Date()
+            .toLocaleString();
+
+
+    /* Customer */
+
+    const customerId =
+        document.getElementById(
+            "customerSelect"
+        ).value;
+
+
+    const customer =
+        customers.find(
+            item =>
+                item.id ==
+                customerId
+        );
+
+
+    const customerName =
+        customer
+            ? customer.name
+            : "Walk-in Customer";
+
+
+    /* ===================================
+       REDUCE STOCK
+    =================================== */
+
+    invoiceItems.forEach(item => {
+
+        const product =
+            products.find(
+                p =>
+                    p.id ==
+                    item.id
+            );
+
+
+        product.stock -=
+            item.quantity;
+
+    });
+
+
+    localStorage.setItem(
+        "storeProducts",
+        JSON.stringify(products)
+    );
+
+
+    /* ===================================
+       SAVE SALE
+    =================================== */
+
+    const sale = {
+
+        invoiceNumber:
+            invoiceNumber,
+
+        date:
+            date,
+
+        customer:
+            customerName,
+
+        customerId:
+            customerId || null,
+
+        items:
+            invoiceItems,
+
+        subtotal:
+            subtotal,
+
+        discount:
+            discount,
+
+        total:
+            total,
+
+        cash:
+            cash,
+
+        change:
+            cash - total
+
+    };
+
+
+    let sales =
+        JSON.parse(
+            localStorage.getItem(
+                "storeSales"
+            )
+        ) || [];
+
+
+    sales.push(sale);
+
+
+    localStorage.setItem(
+        "storeSales",
+        JSON.stringify(sales)
+    );
+
+
+    /* ===================================
+       UPDATE CUSTOMER PURCHASE
+    =================================== */
+
+    if (customer) {
+
+        customer.purchases =
+            Number(
+                customer.purchases || 0
+            ) + total;
+
+
+        localStorage.setItem(
+            "storeCustomers",
+            JSON.stringify(customers)
+        );
+
+    }
+
+
+    /* ===================================
+       CREATE PRINTABLE INVOICE
+    =================================== */
+
+    createPrintableInvoice(
+        sale
+    );
+
+}
+
+
+
+/* ===================================
+   PRINT INVOICE
+=================================== */
+
+function createPrintableInvoice(
+    sale
+) {
+
+    const invoiceWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    invoiceWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                ${sale.invoiceNumber}
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    width:
+                        700px;
+
+                    margin:
+                        30px auto;
+
+                    color:
+                        #222;
+
+                }
+
+
+                .header {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        25px;
+
+                }
+
+
+                .header h1 {
+
+                    margin:
+                        0;
+
+                    font-size:
+                        32px;
+
+                }
+
+
+                .header p {
+
+                    margin:
+                        5px;
+
+                    color:
+                        #666;
+
+                }
+
+
+                .invoice-info {
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    margin-bottom:
+                        25px;
+
+                }
+
+
+                table {
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                }
+
+
+                th,
+                td {
+
+                    border:
+                        1px solid #ddd;
+
+                    padding:
+                        10px;
+
+                    text-align:
+                        left;
+
+                }
+
+
+                th {
+
+                    background:
+                        #f3f4f6;
+
+                }
+
+
+                .summary {
+
+                    width:
+                        300px;
+
+                    margin-left:
+                        auto;
+
+                    margin-top:
+                        20px;
+
+                }
+
+
+                .summary div {
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    padding:
+                        6px;
+
+                }
+
+
+                .total {
+
+                    font-size:
+                        20px;
+
+                    font-weight:
+                        bold;
+
+                    border-top:
+                        2px solid #222;
+
+                    padding-top:
+                        10px;
+
+                }
+
+
+                .thank-you {
+
+                    text-align:
+                        center;
+
+                    margin-top:
+                        40px;
+
+                }
+
+
+                .print-btn {
+
+                    background:
+                        #22c55e;
+
+                    color:
+                        white;
+
+                    border:
+                        none;
+
+                    padding:
+                        12px 25px;
+
+                    cursor:
+                        pointer;
+
+                    margin-bottom:
+                        25px;
+
+                }
+
+
+                @media print {
+
+                    .print-btn {
+
+                        display:
+                            none;
+
+                    }
+
+                    body {
+
+                        margin:
+                            0;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+
+            <button
+                class="print-btn"
+                onclick="window.print()">
+
+                🖨 Print Invoice
+
+            </button>
+
+
+            <!-- INVOICE HEADER -->
+
+            <div class="header">
+
+                <h1>
+                     HA TRADERS
+                </h1>
+
+                <p>
+                    Quality Products at
+                    Affordable prices
+                </p>
+
+                <p>
+                    Lahore, Pakistan
+                </p>
+
+            </div>
+
+
+            <div class="invoice-info">
+
+                <div>
+
+                    <strong>
+                        Invoice:
+                    </strong>
+
+                    ${sale.invoiceNumber}
+
+                    <br>
+
+                    <strong>
+                        Date:
+                    </strong>
+
+                    ${sale.date}
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Customer:
+                    </strong>
+
+                    ${sale.customer}
+
+                </div>
+
+            </div>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Product
+                        </th>
+
+                        <th>
+                            Qty
+                        </th>
+
+                        <th>
+                            Price
+                        </th>
+
+                        <th>
+                            Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${sale.items.map(item => `
+
+                        <tr>
+
+                            <td>
+                                ${item.name}
+                            </td>
+
+                            <td>
+                                ${item.quantity}
+                            </td>
+
+                            <td>
+                                Rs. ${item.price}
+                            </td>
+
+                            <td>
+                                Rs. ${item.total}
+                            </td>
+
+                        </tr>
+
+                    `).join("")}
+
+                </tbody>
+
+            </table>
+
+
+            <div class="summary">
+
+                <div>
+
+                    <span>
+                        Subtotal:
+                    </span>
+
+                    <span>
+                        Rs. ${sale.subtotal}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Discount:
+                    </span>
+
+                    <span>
+                        Rs. ${sale.discount}
+                    </span>
+
+                </div>
+
+
+                <div class="total">
+
+                    <span>
+                        TOTAL:
+                    </span>
+
+                    <span>
+                        Rs. ${sale.total}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Cash:
+                    </span>
+
+                    <span>
+                        Rs. ${sale.cash}
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Change:
+                    </span>
+
+                    <span>
+                        Rs. ${sale.change}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="thank-you">
+
+                <h3>
+                    Thank You For Shopping!
+                </h3>
+
+                <p>
+                    Please visit us again.
+                </p>
+
+            </div>
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    invoiceWindow.document.close();
+
+}
+
+
+
+/* ===================================
+   INITIALIZE
+=================================== */
+
+loadCustomers();
+
+addProductRow();
+
+</script>
+
+
+</body>
+
+</html>
+```

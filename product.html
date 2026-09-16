@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Product Management - HA TRADERS</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+           HA<span>TRADERS</span>
+        </div>
+
+        <nav>
+            <a href="index.html">🏠 Dashboard</a>
+            <a href="product.html" class="active">📦 Products</a>
+            <a href="customer.html">👥 Customers</a>
+            <a href="billing.html">🧾 Billing</a>
+            <a href="sales.html">📊 Sales</a>
+        </nav>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+                <h1>Product Management</h1>
+                <p>Manage your store products and stock</p>
+            </div>
+
+            <button class="add-btn" onclick="openProductForm()">
+                + Add Product
+            </button>
+
+        </header>
+
+
+        <!-- Product Statistics -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+                <h3>Total Products</h3>
+                <p id="totalProducts">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total Stock</h3>
+                <p id="totalStock">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Low Stock</h3>
+                <p id="lowStock">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Categories</h3>
+                <p id="totalCategories">0</p>
+            </div>
+
+        </section>
+
+
+        <!-- Search -->
+
+        <section class="table-section">
+
+            <div class="table-header">
+
+                <h2>Products</h2>
+
+                <input
+                    type="text"
+                    id="searchProduct"
+                    placeholder="Search product..."
+                    onkeyup="displayProducts()"
+                >
+
+            </div>
+
+
+            <!-- Product Table -->
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Purchase Price</th>
+                            <th>Sale Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="productTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Product Form Modal -->
+
+    <div class="modal" id="productModal">
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <h2 id="formTitle">Add Product</h2>
+
+                <button onclick="closeProductForm()">×</button>
+
+            </div>
+
+
+            <form id="productForm">
+
+                <input type="hidden" id="productId">
+
+
+                <label>Product Name</label>
+
+                <input
+                    type="text"
+                    id="productName"
+                    placeholder="Enter product name"
+                    required
+                >
+
+
+                <label>Category</label>
+
+                <input
+                    type="text"
+                    id="productCategory"
+                    placeholder="e.g. Grocery"
+                    required
+                >
+
+
+                <label>Purchase Price</label>
+
+                <input
+                    type="number"
+                    id="purchasePrice"
+                    placeholder="Enter purchase price"
+                    min="0"
+                    required
+                >
+
+
+                <label>Sale Price</label>
+
+                <input
+                    type="number"
+                    id="salePrice"
+                    placeholder="Enter sale price"
+                    min="0"
+                    required
+                >
+
+
+                <label>Stock Quantity</label>
+
+                <input
+                    type="number"
+                    id="stock"
+                    placeholder="Enter stock quantity"
+                    min="0"
+                    required
+                >
+
+
+                <button type="submit" class="save-btn">
+                    Save Product
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+<script>
+
+let products = JSON.parse(localStorage.getItem("storeProducts")) || [];
+
+
+/* Add / Edit Product */
+
+document.getElementById("productForm").addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const id = document.getElementById("productId").value;
+
+    const product = {
+
+        id: id || Date.now(),
+
+        name: document.getElementById("productName").value,
+
+        category: document.getElementById("productCategory").value,
+
+        purchasePrice: Number(
+            document.getElementById("purchasePrice").value
+        ),
+
+        salePrice: Number(
+            document.getElementById("salePrice").value
+        ),
+
+        stock: Number(
+            document.getElementById("stock").value
+        )
+
+    };
+
+
+    if (id) {
+
+        products = products.map(item =>
+            item.id == id ? product : item
+        );
+
+    } else {
+
+        products.push(product);
+
+    }
+
+
+    localStorage.setItem(
+        "storeProducts",
+        JSON.stringify(products)
+    );
+
+
+    closeProductForm();
+
+    displayProducts();
+
+    updateStatistics();
+
+});
+
+
+/* Display Products */
+
+function displayProducts() {
+
+    const table = document.getElementById("productTable");
+
+    const search =
+        document.getElementById("searchProduct")
+        .value
+        .toLowerCase();
+
+
+    table.innerHTML = "";
+
+
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(search) ||
+        product.category.toLowerCase().includes(search)
+    );
+
+
+    filteredProducts.forEach((product, index) => {
+
+        const row = document.createElement("tr");
+
+
+        let stockClass = "";
+
+        if (product.stock <= 5) {
+
+            stockClass = "low-stock";
+
+        }
+
+
+        row.innerHTML = `
+
+            <td>${index + 1}</td>
+
+            <td>
+                <strong>${product.name}</strong>
+            </td>
+
+            <td>${product.category}</td>
+
+            <td>Rs. ${product.purchasePrice}</td>
+
+            <td>Rs. ${product.salePrice}</td>
+
+            <td class="${stockClass}">
+                ${product.stock}
+            </td>
+
+            <td>
+
+                <button
+                    class="edit-btn"
+                    onclick="editProduct(${product.id})">
+                    Edit
+                </button>
+
+                <button
+                    class="delete-btn"
+                    onclick="deleteProduct(${product.id})">
+                    Delete
+                </button>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(row);
+
+    });
+
+}
+
+
+/* Open Form */
+
+function openProductForm() {
+
+    document.getElementById("productModal")
+        .classList.add("show");
+
+    document.getElementById("formTitle")
+        .innerText = "Add Product";
+
+    document.getElementById("productForm")
+        .reset();
+
+    document.getElementById("productId")
+        .value = "";
+
+}
+
+
+/* Close Form */
+
+function closeProductForm() {
+
+    document.getElementById("productModal")
+        .classList.remove("show");
+
+}
+
+
+/* Edit Product */
+
+function editProduct(id) {
+
+    const product =
+        products.find(item => item.id == id);
+
+
+    if (!product) return;
+
+
+    document.getElementById("formTitle")
+        .innerText = "Edit Product";
+
+
+    document.getElementById("productId")
+        .value = product.id;
+
+
+    document.getElementById("productName")
+        .value = product.name;
+
+
+    document.getElementById("productCategory")
+        .value = product.category;
+
+
+    document.getElementById("purchasePrice")
+        .value = product.purchasePrice;
+
+
+    document.getElementById("salePrice")
+        .value = product.salePrice;
+
+
+    document.getElementById("stock")
+        .value = product.stock;
+
+
+    document.getElementById("productModal")
+        .classList.add("show");
+
+}
+
+
+/* Delete Product */
+
+function deleteProduct(id) {
+
+    const confirmDelete =
+        confirm("Are you sure you want to delete this product?");
+
+
+    if (!confirmDelete) return;
+
+
+    products =
+        products.filter(item => item.id != id);
+
+
+    localStorage.setItem(
+        "storeProducts",
+        JSON.stringify(products)
+    );
+
+
+    displayProducts();
+
+    updateStatistics();
+
+}
+
+
+/* Statistics */
+
+function updateStatistics() {
+
+    document.getElementById("totalProducts")
+        .innerText = products.length;
+
+
+    const stock =
+        products.reduce(
+            (total, product) =>
+                total + Number(product.stock),
+            0
+        );
+
+
+    document.getElementById("totalStock")
+        .innerText = stock;
+
+
+    const lowStock =
+        products.filter(
+            product => product.stock <= 5
+        ).length;
+
+
+    document.getElementById("lowStock")
+        .innerText = lowStock;
+
+
+    const categories =
+        new Set(
+            products.map(product => product.category)
+        );
+
+
+    document.getElementById("totalCategories")
+        .innerText = categories.size;
+
+}
+
+
+/* Load products */
+
+displayProducts();
+
+updateStatistics();
+
+</script>
+
+</body>
+</html>
+

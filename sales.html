@@ -1,0 +1,1273 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Sales History - HA TRADERS
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css">
+
+    <style>
+
+        /* Sales Statistics */
+
+        .sales-stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        /* Sales Card */
+
+        .sales-card {
+
+            background: white;
+
+            padding: 22px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 2px 10px
+                rgba(0,0,0,0.05);
+
+        }
+
+
+        .sales-card h3 {
+
+            color: #6b7280;
+
+            font-size: 15px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .sales-card p {
+
+            font-size: 26px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* Search */
+
+        .search-box {
+
+            width: 280px;
+
+            padding: 11px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 6px;
+
+        }
+
+
+        /* View Button */
+
+        .view-btn {
+
+            background: #2563eb;
+
+            color: white;
+
+            border: none;
+
+            padding: 7px 12px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            margin-right: 5px;
+
+        }
+
+
+        /* Delete Button */
+
+        .delete-sale {
+
+            background: #dc2626;
+
+            color: white;
+
+            border: none;
+
+            padding: 7px 12px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+        }
+
+
+        /* Empty */
+
+        .empty-sales {
+
+            text-align: center;
+
+            padding: 40px;
+
+            color: #777;
+
+        }
+
+
+        /* Invoice Modal */
+
+        .invoice-modal {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            background:
+                rgba(0,0,0,0.6);
+
+            display: none;
+
+            justify-content: center;
+
+            align-items: center;
+
+            padding: 20px;
+
+        }
+
+
+        .invoice-modal.show {
+
+            display: flex;
+
+        }
+
+
+        .invoice-box {
+
+            background: white;
+
+            width: 700px;
+
+            max-width: 100%;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+        }
+
+
+        .invoice-header {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .invoice-header h2 {
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .close-invoice {
+
+            background: #dc2626;
+
+            color: white;
+
+            border: none;
+
+            width: 35px;
+
+            height: 35px;
+
+            border-radius: 50%;
+
+            font-size: 20px;
+
+            cursor: pointer;
+
+        }
+
+
+        .invoice-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 20px;
+
+        }
+
+
+        .invoice-table th,
+
+        .invoice-table td {
+
+            padding: 10px;
+
+            border-bottom:
+                1px solid #ddd;
+
+            text-align: left;
+
+        }
+
+
+        .invoice-total {
+
+            margin-left: auto;
+
+            width: 280px;
+
+            margin-top: 20px;
+
+        }
+
+
+        .invoice-total div {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            padding: 7px;
+
+        }
+
+
+        .invoice-total .grand {
+
+            border-top:
+                2px solid #222;
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+        }
+
+
+        .print-invoice {
+
+            margin-top: 25px;
+
+            background: #22c55e;
+
+            color: white;
+
+            border: none;
+
+            padding: 12px 20px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+        }
+
+
+        @media (max-width: 800px) {
+
+            .sales-stats {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+      HA<span>TRADERS</span>
+
+    </div>
+
+
+    <nav>
+
+        <a href="index.html">
+            🏠 Dashboard
+        </a>
+
+        <a href="product.html">
+            📦 Products
+        </a>
+
+        <a href="customer.html">
+            👥 Customers
+        </a>
+
+        <a href="billing.html">
+            🧾 Billing
+        </a>
+
+        <a
+            href="sales.html"
+            class="active">
+
+            📊 Sales
+
+        </a>
+
+    </nav>
+
+</aside>
+
+
+
+<!-- MAIN CONTENT -->
+
+<main class="main-content">
+
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <div>
+
+            <h1>
+                Sales History
+            </h1>
+
+            <p>
+                View and manage completed sales
+            </p>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- STATISTICS -->
+
+    <section class="sales-stats">
+
+
+        <div class="sales-card">
+
+            <h3>
+                Total Sales
+            </h3>
+
+            <p id="totalSales">
+                Rs. 0
+            </p>
+
+        </div>
+
+
+        <div class="sales-card">
+
+            <h3>
+                Total Invoices
+            </h3>
+
+            <p id="totalInvoices">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="sales-card">
+
+            <h3>
+                Today's Sales
+            </h3>
+
+            <p id="todaySales">
+                Rs. 0
+            </p>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- SALES TABLE -->
+
+    <section class="table-section">
+
+
+        <div class="table-header">
+
+            <h2>
+                All Sales
+            </h2>
+
+
+            <input
+                type="text"
+                class="search-box"
+                id="searchSales"
+                placeholder="Search invoice or customer..."
+                onkeyup="displaySales()">
+
+        </div>
+
+
+
+        <div class="table-container">
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            Invoice
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Customer
+                        </th>
+
+                        <th>
+                            Items
+                        </th>
+
+                        <th>
+                            Total
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="salesTable">
+
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- INVOICE MODAL -->
+
+<div
+    class="invoice-modal"
+    id="invoiceModal">
+
+
+    <div class="invoice-box">
+
+
+        <div class="invoice-header">
+
+
+            <div>
+
+                <h2>
+                    GENERAL STORE
+                </h2>
+
+                <p>
+                    Sale Invoice
+                </p>
+
+            </div>
+
+
+            <button
+                class="close-invoice"
+                onclick="closeInvoice()">
+
+                ×
+
+            </button>
+
+
+        </div>
+
+
+        <div id="invoiceContent">
+
+        </div>
+
+
+        <button
+            class="print-invoice"
+            onclick="printInvoice()">
+
+            🖨 Print Invoice
+
+        </button>
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+/* =================================
+   LOAD SALES
+================================= */
+
+let sales =
+    JSON.parse(
+        localStorage.getItem(
+            "storeSales"
+        )
+    ) || [];
+
+
+
+/* =================================
+   DISPLAY SALES
+================================= */
+
+function displaySales() {
+
+
+    const table =
+        document.getElementById(
+            "salesTable"
+        );
+
+
+    const search =
+        document
+            .getElementById(
+                "searchSales"
+            )
+            .value
+            .toLowerCase();
+
+
+    table.innerHTML = "";
+
+
+    const filteredSales =
+        sales.filter(sale =>
+
+            sale.invoiceNumber
+                .toLowerCase()
+                .includes(search)
+
+            ||
+
+            sale.customer
+                .toLowerCase()
+                .includes(search)
+
+        );
+
+
+    if (
+        filteredSales.length === 0
+    ) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="7"
+                    class="empty-sales">
+
+                    No sales found.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    filteredSales
+        .slice()
+        .reverse()
+        .forEach(
+            (sale, index) => {
+
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+
+                        <strong>
+                            ${sale.invoiceNumber}
+                        </strong>
+
+                    </td>
+
+                    <td>
+                        ${sale.date}
+                    </td>
+
+                    <td>
+                        ${sale.customer}
+                    </td>
+
+                    <td>
+                        ${sale.items.length}
+                    </td>
+
+                    <td>
+
+                        <strong>
+                            Rs. ${sale.total}
+                        </strong>
+
+                    </td>
+
+                    <td>
+
+
+                        <button
+                            class="view-btn"
+                            onclick="viewInvoice('${sale.invoiceNumber}')">
+
+                            View
+
+                        </button>
+
+
+                        <button
+                            class="delete-sale"
+                            onclick="deleteSale('${sale.invoiceNumber}')">
+
+                            Delete
+
+                        </button>
+
+
+                    </td>
+
+                `;
+
+
+                table.appendChild(row);
+
+            }
+        );
+
+}
+
+
+
+/* =================================
+   UPDATE STATISTICS
+================================= */
+
+function updateStatistics() {
+
+
+    const total =
+        sales.reduce(
+            (sum, sale) =>
+                sum +
+                Number(sale.total || 0),
+            0
+        );
+
+
+    document.getElementById(
+        "totalSales"
+    ).innerText =
+        "Rs. " + total;
+
+
+
+    document.getElementById(
+        "totalInvoices"
+    ).innerText =
+        sales.length;
+
+
+
+    /* Today's Sales */
+
+    const today =
+        new Date()
+            .toLocaleDateString();
+
+
+    let todayTotal = 0;
+
+
+    sales.forEach(sale => {
+
+        const saleDate =
+            new Date(
+                sale.date
+            ).toLocaleDateString();
+
+
+        if (
+            saleDate === today
+        ) {
+
+            todayTotal +=
+                Number(
+                    sale.total || 0
+                );
+
+        }
+
+    });
+
+
+    document.getElementById(
+        "todaySales"
+    ).innerText =
+        "Rs. " + todayTotal;
+
+}
+
+
+
+/* =================================
+   VIEW INVOICE
+================================= */
+
+function viewInvoice(
+    invoiceNumber
+) {
+
+
+    const sale =
+        sales.find(
+            item =>
+                item.invoiceNumber ===
+                invoiceNumber
+        );
+
+
+    if (!sale) return;
+
+
+    const content =
+        document.getElementById(
+            "invoiceContent"
+        );
+
+
+    content.innerHTML = `
+
+        <div>
+
+            <strong>
+                Invoice:
+            </strong>
+
+            ${sale.invoiceNumber}
+
+            <br>
+
+            <strong>
+                Date:
+            </strong>
+
+            ${sale.date}
+
+            <br>
+
+            <strong>
+                Customer:
+            </strong>
+
+            ${sale.customer}
+
+        </div>
+
+
+        <table
+            class="invoice-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Product
+                    </th>
+
+                    <th>
+                        Qty
+                    </th>
+
+                    <th>
+                        Price
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                ${sale.items.map(
+                    item => `
+
+                    <tr>
+
+                        <td>
+                            ${item.name}
+                        </td>
+
+                        <td>
+                            ${item.quantity}
+                        </td>
+
+                        <td>
+                            Rs. ${item.price}
+                        </td>
+
+                        <td>
+                            Rs. ${item.total}
+                        </td>
+
+                    </tr>
+
+                `
+                ).join("")}
+
+            </tbody>
+
+        </table>
+
+
+        <div class="invoice-total">
+
+
+            <div>
+
+                <span>
+                    Subtotal
+                </span>
+
+                <span>
+                    Rs. ${sale.subtotal}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Discount
+                </span>
+
+                <span>
+                    Rs. ${sale.discount}
+                </span>
+
+            </div>
+
+
+            <div class="grand">
+
+                <span>
+                    Total
+                </span>
+
+                <span>
+                    Rs. ${sale.total}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Cash
+                </span>
+
+                <span>
+                    Rs. ${sale.cash}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Change
+                </span>
+
+                <span>
+                    Rs. ${sale.change}
+                </span>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    document
+        .getElementById(
+            "invoiceModal"
+        )
+        .classList.add("show");
+
+
+}
+
+
+
+/* =================================
+   CLOSE INVOICE
+================================= */
+
+function closeInvoice() {
+
+    document
+        .getElementById(
+            "invoiceModal"
+        )
+        .classList.remove("show");
+
+}
+
+
+
+/* =================================
+   PRINT INVOICE
+================================= */
+
+function printInvoice() {
+
+
+    const content =
+        document.getElementById(
+            "invoiceContent"
+        ).innerHTML;
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                General Store Invoice
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    padding:
+                        30px;
+
+                }
+
+
+                h2 {
+
+                    text-align:
+                        center;
+
+                }
+
+
+                table {
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                    margin-top:
+                        20px;
+
+                }
+
+
+                th,
+                td {
+
+                    padding:
+                        10px;
+
+                    border:
+                        1px solid #ddd;
+
+                    text-align:
+                        left;
+
+                }
+
+
+                th {
+
+                    background:
+                        #f3f4f6;
+
+                }
+
+
+                .invoice-total {
+
+                    width:
+                        300px;
+
+                    margin-left:
+                        auto;
+
+                    margin-top:
+                        20px;
+
+                }
+
+
+                .invoice-total div {
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    padding:
+                        6px;
+
+                }
+
+
+                .grand {
+
+                    font-size:
+                        20px;
+
+                    font-weight:
+                        bold;
+
+                    border-top:
+                        2px solid #222;
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+            <h2>
+                GENERAL STORE
+            </h2>
+
+            <p style="text-align:center;">
+                Sale Invoice
+            </p>
+
+
+            ${content}
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.focus();
+
+
+    setTimeout(
+        () => {
+            printWindow.print();
+        },
+        500
+    );
+
+}
+
+
+
+/* =================================
+   DELETE SALE
+================================= */
+
+function deleteSale(
+    invoiceNumber
+) {
+
+
+    const confirmDelete =
+        confirm(
+            "Delete this sale record?"
+        );
+
+
+    if (!confirmDelete) return;
+
+
+    sales =
+        sales.filter(
+            sale =>
+                sale.invoiceNumber !==
+                invoiceNumber
+        );
+
+
+    localStorage.setItem(
+        "storeSales",
+        JSON.stringify(sales)
+    );
+
+
+    displaySales();
+
+    updateStatistics();
+
+}
+
+
+
+/* =================================
+   INITIAL LOAD
+================================= */
+
+displaySales();
+
+updateStatistics();
+
+
+</script>
+
+
+</body>
+
+</html>
+```
